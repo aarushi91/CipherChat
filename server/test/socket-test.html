@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CipherChat Socket Test</title>
+</head>
+
+<body>
+
+    <h2>🟢 CipherChat Socket Test</h2>
+
+    <button onclick="joinAarushi()">
+        Join as Aarushi
+    </button>
+
+    <button onclick="joinRohit()">
+        Join as Rohit
+    </button>
+
+    <button onclick="typingFromRohit()">
+        Rohit Typing
+    </button>
+
+    <button onclick="stopTypingFromRohit()">
+        Rohit Stop Typing
+    </button>
+
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+    <script>
+
+        const socket = io("http://localhost:5000", {
+            withCredentials: true
+        });
+
+        socket.on("connect", () => {
+
+            console.log("✅ Connected");
+
+            console.log("Socket ID:", socket.id);
+
+        });
+
+        socket.on("onlineUsers", (users) => {
+
+            console.log("🟢 Online Users");
+
+            console.log(users);
+
+        });
+
+        socket.on("receiveMessage", (message) => {
+
+            console.log("📩 New Message Received");
+
+            console.log(message);
+
+        });
+
+        socket.on("messagesSeen", (data) => {
+
+            console.log("👀 Messages Seen");
+
+            console.log(data);
+
+        });
+
+        socket.on("typing", (data) => {
+
+            console.log("⌨️ Typing...");
+
+            console.log(data);
+
+        });
+
+        socket.on("stopTyping", (data) => {
+
+            console.log("🛑 Stopped Typing");
+
+            console.log(data);
+
+        });
+
+        function joinAarushi() {
+
+            console.log("Joining Aarushi");
+
+            socket.emit(
+                "join",
+                "6a54c2bfdfb7267a1e477dd2"
+            );
+
+        }
+
+        function joinRohit() {
+
+            console.log("Joining Rohit");
+
+            socket.emit(
+                "join",
+                "6a550806544bd67020e62674"
+            );
+
+        }
+
+        function typingFromRohit() {
+
+            socket.emit("typing", {
+
+                senderId: "6a550806544bd67020e62674",
+
+                receiverId: "6a54c2bfdfb7267a1e477dd2"
+
+            });
+
+        }
+
+        function stopTypingFromRohit() {
+
+            socket.emit("stopTyping", {
+
+                senderId: "6a550806544bd67020e62674",
+
+                receiverId: "6a54c2bfdfb7267a1e477dd2"
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>
