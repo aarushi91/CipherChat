@@ -1,91 +1,27 @@
 import { Server } from "socket.io";
-import jwt from "jsonwebtoken";
-import { parse } from "cookie";
-import User from "../models/User.js";
 
 let io;
 
-// Stores: userId -> socketId
+// userId -> socketId
 const onlineUsers = new Map();
 
 export const initSocket = (server) => {
 
     io = new Server(server, {
         cors: {
-            origin: "http://127.0.0.1:5500",
-            methods: ["GET", "POST"],
-            credentials: true
+            origin: "*",
+            methods: ["GET", "POST"]
         }
     });
 
-   io.on("connection", async (socket) => {
+    io.on("connection", (socket) => {
 
         console.log("🟢 User Connected:", socket.id);
 
-        const cookies = cookie.parse(
-            socket.handshake.headers.cookie || ""
-        );
-
-        const token = cookies.token;
-
-        if (!token) {
-
-            console.log("❌ Socket Unauthorized");
-
-            socket.disconnect();
-
-            return;
-
-        }
-
-        try {
-
-            const decoded = jwt.verify(
-                token,
-                process.env.JWT_SECRET
-            );
-
-            const userId = decoded.id;
-
-            socket.userId = userId;
-
-            onlineUsers.set(userId, socket.id);
-
-            await User.findByIdAndUpdate(userId, {
-                isOnline: true
-            });
-
-            io.emit(
-                "onlineUsers",
-                Array.from(onlineUsers.keys())
-            );
-
-            console.log("✅ Socket Authenticated");
-            console.log("User:", userId);
-
-        } catch (error) {
-
-            console.log("❌ Invalid Socket Token");
-
-            socket.disconnect();
-
-            return;
-
-        }
-
-        // Keep the existing join event below for now
         // User joins after login
-        socket.on("join", async (userId) => {
+        socket.on("join", (userId) => {
 
             onlineUsers.set(userId, socket.id);
-
-            // Update database
-
-            await User.findByIdAndUpdate(userId, {
-
-                isOnline: true
-
-            });
 
             io.emit(
                 "onlineUsers",
@@ -99,19 +35,16 @@ export const initSocket = (server) => {
 
         });
 
-        // User is typing
+        // Typing indicator
         socket.on("typing", ({ senderId, receiverId }) => {
 
             const receiverSocketId = onlineUsers.get(receiverId);
 
             if (receiverSocketId) {
 
-                io.to(receiverSocketId).emit(
-                    "typing",
-                    {
-                        senderId
-                    }
-                );
+                io.to(receiverSocketId).emit("typing", {
+                    senderId
+                });
 
                 console.log(`${senderId} is typing...`);
 
@@ -119,19 +52,16 @@ export const initSocket = (server) => {
 
         });
 
-        // User stopped typing
+        // Stop typing
         socket.on("stopTyping", ({ senderId, receiverId }) => {
 
             const receiverSocketId = onlineUsers.get(receiverId);
 
             if (receiverSocketId) {
 
-                io.to(receiverSocketId).emit(
-                    "stopTyping",
-                    {
-                        senderId
-                    }
-                );
+                io.to(receiverSocketId).emit("stopTyping", {
+                    senderId
+                });
 
                 console.log(`${senderId} stopped typing`);
 
@@ -139,7 +69,7 @@ export const initSocket = (server) => {
 
         });
 
-        socket.on("disconnect", async () => {
+        socket.on("disconnect", () => {
 
             for (const [userId, socketId] of onlineUsers.entries()) {
 
@@ -147,24 +77,10 @@ export const initSocket = (server) => {
 
                     onlineUsers.delete(userId);
 
-                    // Update database
-
-                    await User.findByIdAndUpdate(userId, {
-
-                        isOnline: false,
-
-                        lastSeen: new Date()
-
-                    });
-
                     io.emit(
                         "onlineUsers",
                         Array.from(onlineUsers.keys())
                     );
-
-                    console.log("🔴 User Disconnected:", socket.id);
-
-                    console.log("Online Users:", onlineUsers.size);
 
                     break;
 
@@ -172,7 +88,11 @@ export const initSocket = (server) => {
 
             }
 
+            console.log("🔴 User Disconnected:", socket.id);
+            console.log("Online Users:", onlineUsers.size);
+
         });
+
     });
 
 };
