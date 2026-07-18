@@ -1,14 +1,4 @@
-import {
-
-    Phone,
-
-    Video,
-
-    MoreVertical,
-
-} from "lucide-react";
-
-const ChatHeader = () => {
+const ChatHeader = ({ chat }) => {
 
     return (
 
@@ -17,44 +7,44 @@ const ChatHeader = () => {
             flex
             items-center
             justify-between
+            px-8
+            py-5
             border-b
             border-white/10
             bg-white/[0.03]
             backdrop-blur-xl
-            px-8
-            py-5
             "
         >
 
-            <div>
+            <div className="flex items-center gap-4">
 
-                <h2 className="text-2xl font-semibold">
-
-                    Rohit
-
-                </h2>
-
-                <p className="text-green-400">
-
-                    Online
-
-                </p>
-
-            </div>
-
-            <div className="flex gap-4">
-
-                <Phone
-                    className="cursor-pointer hover:text-purple-400"
+                <img
+                    src={`https://ui-avatars.com/api/?name=${chat.name}&background=7c3aed&color=fff`}
+                    alt={chat.name}
+                    className="w-14 h-14 rounded-full"
                 />
 
-                <Video
-                    className="cursor-pointer hover:text-purple-400"
-                />
+                <div>
 
-                <MoreVertical
-                    className="cursor-pointer hover:text-purple-400"
-                />
+                    <h2 className="text-2xl font-semibold">
+
+                        {chat.name}
+
+                    </h2>
+
+                    <p
+                        className={
+                            chat.online
+                                ? "text-green-400"
+                                : "text-zinc-500"
+                        }
+                    >
+
+                        {chat.online ? "Online" : "Offline"}
+
+                    </p>
+
+                </div>
 
             </div>
 

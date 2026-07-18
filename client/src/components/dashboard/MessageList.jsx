@@ -1,52 +1,17 @@
 import { useEffect, useRef } from "react";
-
 import MessageBubble from "./MessageBubble";
 
-const messages = [
+const MessageList = ({ messages }) => {
 
-    {
-        id: 1,
-        own: false,
-        text: "Hello 👋",
-        time: "2:10 PM",
-    },
-
-    {
-        id: 2,
-        own: true,
-        text: "Hi 😊",
-        time: "2:11 PM",
-    },
-
-    {
-        id: 3,
-        own: false,
-        text: "How's CipherChat going?",
-        time: "2:12 PM",
-    },
-
-    {
-        id: 4,
-        own: true,
-        text: "Almost finished 🚀",
-        time: "2:13 PM",
-    },
-
-];
-
-const MessageList = () => {
-
-    const bottomRef = useRef();
+    const bottomRef = useRef(null);
 
     useEffect(() => {
 
         bottomRef.current?.scrollIntoView({
-
             behavior: "smooth",
-
         });
 
-    }, []);
+    }, [messages]);
 
     return (
 

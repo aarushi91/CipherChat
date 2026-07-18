@@ -2,18 +2,26 @@ import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 
-const ChatArea = () => {
+const ChatArea = ({ chat }) => {
+
     return (
-        <main className="flex-1 flex flex-col">
 
-            <ChatHeader />
+        <section className="flex-1 flex flex-col">
 
-            <MessageList />
+            <ChatHeader
+                chat={chat}
+            />
+
+            <MessageList
+                messages={chat.messages}
+            />
 
             <MessageInput />
 
-        </main>
+        </section>
+
     );
+
 };
 
 export default ChatArea;
